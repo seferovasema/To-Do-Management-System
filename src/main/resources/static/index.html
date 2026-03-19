@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Task Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f4f2ee;
+  --card:#ffffff;
+  --border:#e0ddd7;
+  --text:#1a1814;
+  --muted:#8a8479;
+  --accent:#c8622a;
+  --accent2:#2a5fc8;
+  --accent3:#2ac87a;
+  --danger:#c82a2a;
+  --warning:#c8a22a;
+  --surface:#faf9f6;
+  --shadow:0 2px 12px rgba(0,0,0,0.07);
+  --shadow-lg:0 8px 40px rgba(0,0,0,0.13);
+}
+
+body{
+  font-family:'Instrument Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+}
+
+/* ── TOPBAR ── */
+.topbar{
+  background:var(--text);
+  color:#fff;
+  padding:0 32px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  height:60px;
+  position:sticky;
+  top:0;
+  z-index:50;
+}
+.topbar-logo{
+  font-family:'Syne',sans-serif;
+  font-weight:800;
+  font-size:18px;
+  letter-spacing:-0.5px;
+}
+.topbar-logo em{color:var(--accent);font-style:normal}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.base-input-wrap{display:flex;align-items:center;gap:8px}
+.base-input-wrap label{font-size:11px;color:#888;letter-spacing:1px;text-transform:uppercase;white-space:nowrap}
+.base-input-wrap input{
+  background:rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.2);
+  border-radius:6px;
+  padding:6px 12px;
+  color:#fff;
+  font-family:'Instrument Sans',sans-serif;
+  font-size:13px;
+  outline:none;
+  width:200px;
+}
+.base-input-wrap input:focus{border-color:var(--accent)}
+.refresh-btn{
+  background:rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.2);
+  border-radius:6px;
+  padding:7px 14px;
+  color:#fff;
+  cursor:pointer;
+  font-size:13px;
+  font-family:'Instrument Sans',sans-serif;
+  transition:all 0.2s;
+}
+.refresh-btn:hover{background:rgba(255,255,255,0.2)}
+
+/* ── LAYOUT ── */
+.layout{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:24px;
+  padding:28px 32px;
+  max-width:1400px;
+  margin:0 auto;
+}
+
+/* ── SECTION ── */
+.section{}
+.section-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:16px;
+}
+.section-title{
+  font-family:'Syne',sans-serif;
+  font-weight:700;
+  font-size:20px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.section-title .count{
+  background:var(--text);
+  color:#fff;
+  font-size:11px;
+  font-family:'Instrument Sans',sans-serif;
+  font-weight:600;
+  padding:2px 8px;
+  border-radius:20px;
+}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:9px 18px;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
+  font-family:'Instrument Sans',sans-serif;
+  font-size:13px;
+  font-weight:600;
+  transition:all 0.18s;
+  white-space:nowrap;
+}
+.btn-primary{background:var(--text);color:#fff}
+.btn-primary:hover{background:#333;transform:translateY(-1px);box-shadow:var(--shadow)}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-accent:hover{opacity:0.9;transform:translateY(-1px)}
+.btn-outline{background:transparent;color:var(--text);border:1.5px solid var(--border)}
+.btn-outline:hover{border-color:var(--text);background:var(--surface)}
+.btn-danger{background:transparent;color:var(--danger);border:1.5px solid rgba(200,42,42,0.3)}
+.btn-danger:hover{background:rgba(200,42,42,0.06)}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:6px}
+.btn-icon{padding:6px 8px;border-radius:6px}
+
+/* ── CARD LIST ── */
+.card-list{display:flex;flex-direction:column;gap:10px}
+
+/* USER CARD */
+.user-card{
+  background:var(--card);
+  border:1.5px solid var(--border);
+  border-radius:12px;
+  padding:16px 20px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  transition:all 0.2s;
+  animation:fadeUp 0.3s ease both;
+}
+.user-card:hover{box-shadow:var(--shadow);border-color:#ccc;transform:translateY(-1px)}
+.user-avatar{
+  width:42px;height:42px;
+  border-radius:50%;
+  background:var(--text);
+  color:#fff;
+  font-family:'Syne',sans-serif;
+  font-weight:700;
+  font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.user-info{flex:1;min-width:0}
+.user-name{font-weight:600;font-size:15px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-email{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-actions{display:flex;gap:6px;flex-shrink:0}
+.role-badge{
+  font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;
+  padding:3px 8px;border-radius:20px;
+  background:rgba(42,95,200,0.1);color:var(--accent2);
+  border:1px solid rgba(42,95,200,0.2);
+  white-space:nowrap;
+}
+.role-badge.ADMIN{background:rgba(200,98,42,0.1);color:var(--accent);border-color:rgba(200,98,42,0.2)}
+
+/* TASK CARD */
+.task-card{
+  background:var(--card);
+  border:1.5px solid var(--border);
+  border-left:4px solid var(--border);
+  border-radius:12px;
+  padding:16px 20px;
+  transition:all 0.2s;
+  animation:fadeUp 0.3s ease both;
+}
+.task-card:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
+.task-card.TODO{border-left-color:var(--warning)}
+.task-card.IN_PROGRESS{border-left-color:var(--accent2)}
+.task-card.DONE{border-left-color:var(--accent3)}
+.task-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.task-title{font-weight:600;font-size:15px;flex:1}
+.task-desc{font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+.task-bottom{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.status-badge{
+  font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;
+  padding:3px 9px;border-radius:20px;
+}
+.status-badge.TODO{background:rgba(200,162,42,0.12);color:var(--warning);border:1px solid rgba(200,162,42,0.3)}
+.status-badge.IN_PROGRESS{background:rgba(42,95,200,0.12);color:var(--accent2);border:1px solid rgba(42,95,200,0.3)}
+.status-badge.DONE{background:rgba(42,200,122,0.12);color:#1a9458;border:1px solid rgba(42,200,122,0.3)}
+.assigned-to{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.task-actions{margin-left:auto;display:flex;gap:6px}
+
+/* ── EMPTY STATE ── */
+.empty{
+  text-align:center;padding:48px 24px;
+  background:var(--card);border:1.5px dashed var(--border);border-radius:12px;
+}
+.empty-icon{font-size:36px;margin-bottom:12px}
+.empty p{color:var(--muted);font-size:14px}
+
+/* ── LOADING ── */
+.loading-row{
+  display:flex;gap:8px;align-items:center;
+  padding:20px;color:var(--muted);font-size:14px;
+}
+.spinner{
+  width:16px;height:16px;
+  border:2px solid var(--border);
+  border-top-color:var(--text);
+  border-radius:50%;
+  animation:spin 0.7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── MODAL OVERLAY ── */
+.overlay{
+  position:fixed;inset:0;
+  background:rgba(26,24,20,0.55);
+  backdrop-filter:blur(4px);
+  z-index:200;
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+  opacity:0;pointer-events:none;transition:opacity 0.25s;
+}
+.overlay.open{opacity:1;pointer-events:all}
+
+/* ── MODAL ── */
+.modal{
+  background:var(--card);
+  border-radius:16px;
+  width:100%;max-width:460px;
+  box-shadow:var(--shadow-lg);
+  transform:translateY(20px) scale(0.97);
+  transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  overflow:hidden;
+}
+.overlay.open .modal{transform:translateY(0) scale(1)}
+.modal-header{
+  padding:24px 28px 0;
+  display:flex;align-items:flex-start;justify-content:space-between;
+}
+.modal-title{font-family:'Syne',sans-serif;font-weight:700;font-size:20px}
+.modal-subtitle{font-size:13px;color:var(--muted);margin-top:3px}
+.modal-close{
+  background:none;border:none;cursor:pointer;
+  color:var(--muted);font-size:20px;line-height:1;
+  padding:4px;border-radius:6px;transition:color 0.15s;
+}
+.modal-close:hover{color:var(--text)}
+.modal-body{padding:20px 28px}
+.modal-footer{
+  padding:0 28px 24px;
+  display:flex;gap:10px;justify-content:flex-end;
+  border-top:1px solid var(--border);
+  padding-top:20px;
+}
+
+/* ── FORM ── */
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.field label{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:600}
+.field input,.field select,.field textarea{
+  background:var(--surface);
+  border:1.5px solid var(--border);
+  border-radius:8px;
+  padding:10px 13px;
+  color:var(--text);
+  font-family:'Instrument Sans',sans-serif;
+  font-size:14px;
+  outline:none;
+  transition:border-color 0.18s;
+  width:100%;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--text);
+  background:#fff;
+}
+.field textarea{resize:vertical;min-height:72px}
+.field select option{background:#fff}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* ── TOAST ── */
+#toast{
+  position:fixed;bottom:28px;right:28px;
+  background:var(--text);color:#fff;
+  border-radius:10px;padding:13px 20px;
+  font-size:13px;font-weight:500;
+  display:flex;align-items:center;gap:8px;
+  z-index:999;
+  transform:translateY(80px);opacity:0;
+  transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  max-width:320px;
+  box-shadow:var(--shadow-lg);
+}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.ok::before{content:'✓ ';color:var(--accent3)}
+#toast.err::before{content:'✗ ';color:#f87171}
+
+/* ── STATUS FILTER ── */
+.filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-chip{
+  padding:5px 13px;border-radius:20px;
+  font-size:12px;font-weight:600;
+  border:1.5px solid var(--border);background:var(--card);
+  cursor:pointer;transition:all 0.15s;
+  color:var(--muted);
+}
+.filter-chip:hover,.filter-chip.active{background:var(--text);color:#fff;border-color:var(--text)}
+
+/* assign modal select */
+.user-option-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px;border-radius:8px;border:1.5px solid var(--border);
+  cursor:pointer;margin-bottom:8px;transition:all 0.15s;
+}
+.user-option-item:hover,.user-option-item.selected{
+  border-color:var(--text);background:var(--surface);
+}
+.user-option-item.selected{border-color:var(--accent);background:rgba(200,98,42,0.04)}
+.uoi-av{
+  width:34px;height:34px;border-radius:50%;
+  background:var(--text);color:#fff;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:13px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.uoi-info .uoi-name{font-size:14px;font-weight:600}
+.uoi-info .uoi-email{font-size:12px;color:var(--muted)}
+
+/* status inline select */
+.status-select-wrap{position:relative;display:inline-block}
+.status-select-wrap select{
+  appearance:none;
+  border:none;border-radius:20px;
+  padding:3px 22px 3px 9px;
+  font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;
+  cursor:pointer;outline:none;
+}
+.status-select-wrap::after{
+  content:'▾';position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  font-size:9px;pointer-events:none;color:inherit;
+}
+.status-select-wrap.TODO select{background:rgba(200,162,42,0.12);color:var(--warning)}
+.status-select-wrap.IN_PROGRESS select{background:rgba(42,95,200,0.12);color:var(--accent2)}
+.status-select-wrap.DONE select{background:rgba(42,200,122,0.12);color:#1a9458}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-logo">task<em>mgr</em></div>
+  <div class="topbar-right">
+    <div class="base-input-wrap">
+      <label>API</label>
+      <input id="baseUrl" value="http://localhost:8080" spellcheck="false"/>
+    </div>
+    <button class="refresh-btn" onclick="loadAll()">⟳ Refresh</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div class="layout">
+
+  <!-- ══ USERS ══ -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">
+        Users
+        <span class="count" id="user-count">0</span>
+      </div>
+      <button class="btn btn-primary" onclick="openModal('user-create')">+ New User</button>
+    </div>
+    <div class="card-list" id="user-list">
+      <div class="loading-row"><div class="spinner"></div> Loading...</div>
+    </div>
+  </div>
+
+  <!-- ══ TASKS ══ -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">
+        Tasks
+        <span class="count" id="task-count">0</span>
+      </div>
+      <button class="btn btn-accent" onclick="openModal('task-create')">+ New Task</button>
+    </div>
+    <div class="filter-bar">
+      <div class="filter-chip active" data-filter="ALL" onclick="setFilter(this)">All</div>
+      <div class="filter-chip" data-filter="TODO" onclick="setFilter(this)">To Do</div>
+      <div class="filter-chip" data-filter="IN_PROGRESS" onclick="setFilter(this)">In Progress</div>
+      <div class="filter-chip" data-filter="DONE" onclick="setFilter(this)">Done</div>
+    </div>
+    <div class="card-list" id="task-list">
+      <div class="loading-row"><div class="spinner"></div> Loading...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODALS ══ -->
+
+<!-- CREATE USER -->
+<div class="overlay" id="modal-user-create" onclick="overlayClick(event,'user-create')">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">New User</div>
+        <div class="modal-subtitle">Fill in user details</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('user-create')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field"><label>Name</label><input id="cu-name" placeholder="John Doe"/></div>
+      <div class="field"><label>Email</label><input id="cu-email" type="email" placeholder="john@example.com"/></div>
+      <div class="field">
+        <label>Role</label>
+        <select id="cu-role">
+          <option value="USER">USER</option>
+          <option value="ADMIN">ADMIN</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('user-create')">Cancel</button>
+      <button class="btn btn-primary" onclick="createUser()">Create User</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT USER -->
+<div class="overlay" id="modal-user-edit" onclick="overlayClick(event,'user-edit')">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Edit User</div>
+        <div class="modal-subtitle">Update user details</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('user-edit')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="eu-id"/>
+      <div class="field"><label>Name</label><input id="eu-name"/></div>
+      <div class="field"><label>Email</label><input id="eu-email" type="email"/></div>
+      <div class="field">
+        <label>Role</label>
+        <select id="eu-role">
+          <option value="USER">USER</option>
+          <option value="ADMIN">ADMIN</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('user-edit')">Cancel</button>
+      <button class="btn btn-primary" onclick="updateUser()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE TASK -->
+<div class="overlay" id="modal-task-create" onclick="overlayClick(event,'task-create')">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">New Task</div>
+        <div class="modal-subtitle">Fill in task details</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('task-create')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field"><label>Title</label><input id="ct-title" placeholder="Fix login bug"/></div>
+      <div class="field"><label>Description</label><textarea id="ct-desc" placeholder="Describe the task..."></textarea></div>
+      <div class="field">
+        <label>Status</label>
+        <select id="ct-status">
+          <option value="TODO">TODO</option>
+          <option value="IN_PROGRESS">IN_PROGRESS</option>
+          <option value="DONE">DONE</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('task-create')">Cancel</button>
+      <button class="btn btn-accent" onclick="createTask()">Create Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT TASK -->
+<div class="overlay" id="modal-task-edit" onclick="overlayClick(event,'task-edit')">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Edit Task</div>
+        <div class="modal-subtitle">Update task details</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('task-edit')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="et-id"/>
+      <div class="field"><label>Title</label><input id="et-title"/></div>
+      <div class="field"><label>Description</label><textarea id="et-desc"></textarea></div>
+      <div class="field">
+        <label>Status</label>
+        <select id="et-status">
+          <option value="TODO">TODO</option>
+          <option value="IN_PROGRESS">IN_PROGRESS</option>
+          <option value="DONE">DONE</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('task-edit')">Cancel</button>
+      <button class="btn btn-accent" onclick="updateTask()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ASSIGN TASK -->
+<div class="overlay" id="modal-assign" onclick="overlayClick(event,'assign')">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Assign Task</div>
+        <div class="modal-subtitle" id="assign-subtitle">Choose a user to assign</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('assign')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="assign-task-id"/>
+      <div id="assign-user-list"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('assign')">Cancel</button>
+      <button class="btn btn-danger btn-sm" onclick="unassignTask()" id="unassign-btn" style="margin-right:auto">Unassign</button>
+      <button class="btn btn-primary" onclick="assignTask()">Assign</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ─── STATE ─── */
+let users = [];
+let tasks = [];
+let taskFilter = 'ALL';
+let assignSelectedUserId = null;
+
+const base = () => document.getElementById('baseUrl').value.replace(/\/$/,'');
+
+/* ─── API ─── */
+async function api(method, path, body) {
+  const opts = { method, headers: {'Content-Type':'application/json'} };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(base() + path, opts);
+  const text = await res.text();
+  let data = null;
+  try { data = JSON.parse(text); } catch {}
+  return { ok: res.ok, status: res.status, data };
+}
+
+/* ─── LOAD ─── */
+async function loadAll() {
+  loadUsers();
+  loadTasks();
+}
+
+async function loadUsers() {
+  document.getElementById('user-list').innerHTML = '<div class="loading-row"><div class="spinner"></div> Loading...</div>';
+  try {
+    const r = await api('GET', '/users');
+    if (r.ok && Array.isArray(r.data)) {
+      users = r.data;
+      renderUsers();
+    } else throw new Error();
+  } catch { document.getElementById('user-list').innerHTML = '<div class="empty"><div class="empty-icon">⚠</div><p>Could not load users. Is the server running?</p></div>'; }
+}
+
+async function loadTasks() {
+  document.getElementById('task-list').innerHTML = '<div class="loading-row"><div class="spinner"></div> Loading...</div>';
+  try {
+    const r = await api('GET', '/tasks');
+    if (r.ok && Array.isArray(r.data)) {
+      tasks = r.data;
+      renderTasks();
+    } else throw new Error();
+  } catch { document.getElementById('task-list').innerHTML = '<div class="empty"><div class="empty-icon">⚠</div><p>Could not load tasks. Is the server running?</p></div>'; }
+}
+
+/* ─── RENDER ─── */
+function initials(name) {
+  if (!name) return '?';
+  return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+}
+
+function renderUsers() {
+  const el = document.getElementById('user-list');
+  document.getElementById('user-count').textContent = users.length;
+  if (!users.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">👤</div><p>No users yet. Create one!</p></div>'; return; }
+  el.innerHTML = '';
+  users.forEach((u, i) => {
+    const uid = u.id ?? u.userId ?? null;
+    const d = document.createElement('div');
+    d.className = 'user-card';
+    d.style.animationDelay = (i*0.05)+'s';
+    d.innerHTML = `
+      <div class="user-avatar">${initials(u.name)}</div>
+      <div class="user-info">
+        <div class="user-name">${esc(u.name||'—')}</div>
+        <div class="user-email">${esc(u.email||'—')}</div>
+      </div>
+      <span class="role-badge ${u.userRole||''}">${u.userRole||'USER'}</span>
+      <div class="user-actions">
+        <button class="btn btn-outline btn-sm btn-icon" data-action="edit" title="Edit">✎</button>
+        <button class="btn btn-danger btn-sm btn-icon" data-action="delete" title="Delete">✕</button>
+      </div>`;
+    d.querySelector('[data-action="edit"]').addEventListener('click', () => openEditUser(i));
+    d.querySelector('[data-action="delete"]').addEventListener('click', () => {
+      if (uid == null) { toast('UserView-da id field yoxdur','err'); return; }
+      deleteUser(uid);
+    });
+    el.appendChild(d);
+  });
+}
+
+function renderTasks() {
+  const el = document.getElementById('task-list');
+  let filtered = tasks;
+  if (taskFilter !== 'ALL') filtered = tasks.filter(t => t.taskStatus === taskFilter);
+  document.getElementById('task-count').textContent = filtered.length;
+  if (!filtered.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">✓</div><p>No tasks' + (taskFilter!=='ALL'?' with this status':' yet. Create one!') + '</p></div>'; return; }
+  el.innerHTML = '';
+  filtered.forEach((t, i) => {
+    const st = t.taskStatus || 'TODO';
+    // id field adı backend-dən fərqli gələ bilər: id, taskId, və s.
+    const tid = t.id ?? t.taskId ?? null;
+    const assignedUser = t.userId ? users.find(u => (u.id ?? u.userId) === t.userId) : null;
+    const d = document.createElement('div');
+    d.className = `task-card ${st}`;
+    d.style.animationDelay = (i*0.05)+'s';
+    d.dataset.taskId = tid ?? '';
+    d.innerHTML = `
+      <div class="task-top">
+        <div class="task-title">${esc(t.title||'Untitled')}</div>
+        <div class="task-actions">
+          <button class="btn btn-outline btn-sm" data-action="assign">${assignedUser ? '👤 '+esc(assignedUser.name) : '+ Assign'}</button>
+          <button class="btn btn-outline btn-sm btn-icon" data-action="edit" title="Edit">✎</button>
+          <button class="btn btn-danger btn-sm btn-icon" data-action="delete" title="Delete">✕</button>
+        </div>
+      </div>
+      ${t.description ? `<div class="task-desc">${esc(t.description)}</div>` : ''}
+      <div class="task-bottom">
+        <div class="status-select-wrap ${st}">
+          <select data-action="status">
+            <option value="TODO" ${st==='TODO'?'selected':''}>TODO</option>
+            <option value="IN_PROGRESS" ${st==='IN_PROGRESS'?'selected':''}>IN PROGRESS</option>
+            <option value="DONE" ${st==='DONE'?'selected':''}>DONE</option>
+          </select>
+        </div>
+        ${tid == null ? '<span style="font-size:11px;color:var(--danger);margin-left:8px">⚠ id yoxdur — TaskView-a id əlavə et</span>' : ''}
+      </div>`;
+
+    // event delegation — id-ni data-dan oxu, inline JS-dən yox
+    d.querySelector('[data-action="assign"]').addEventListener('click', () => {
+      if (tid == null) { toast('TaskView-da id field yoxdur','err'); return; }
+      openAssign(tid);
+    });
+    d.querySelector('[data-action="edit"]').addEventListener('click', () => {
+      if (tid == null) { toast('TaskView-da id field yoxdur','err'); return; }
+      openEditTask(tid);
+    });
+    d.querySelector('[data-action="delete"]').addEventListener('click', () => {
+      if (tid == null) { toast('TaskView-da id field yoxdur','err'); return; }
+      deleteTask(tid);
+    });
+    d.querySelector('[data-action="status"]').addEventListener('change', function() {
+      if (tid == null) { toast('TaskView-da id field yoxdur','err'); this.value = st; return; }
+      changeStatus(tid, this.value, this);
+    });
+
+    el.appendChild(d);
+  });
+}
+
+function setFilter(el) {
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  taskFilter = el.dataset.filter;
+  renderTasks();
+}
+
+/* ─── USER CRUD ─── */
+async function createUser() {
+  const name = v('cu-name'), email = v('cu-email'), userRole = v('cu-role');
+  if (!name || !email) { toast('Name and email required','err'); return; }
+  const r = await api('POST', '/users', {name, email, userRole});
+  if (r.ok) { toast('User created'); closeModal('user-create'); clearFields(['cu-name','cu-email']); loadUsers(); }
+  else toast('Failed to create user','err');
+}
+
+function openEditUser(idx) {
+  const u = users[idx];
+  document.getElementById('eu-id').value = u.id;
+  document.getElementById('eu-name').value = u.name || '';
+  document.getElementById('eu-email').value = u.email || '';
+  document.getElementById('eu-role').value = u.userRole || 'USER';
+  openModal('user-edit');
+}
+
+async function updateUser() {
+  const id = v('eu-id'), name = v('eu-name'), email = v('eu-email'), userRole = v('eu-role');
+  const r = await api('PUT', '/users/'+id, {name, email, userRole});
+  if (r.ok) { toast('User updated'); closeModal('user-edit'); loadUsers(); }
+  else toast('Failed to update user','err');
+}
+
+async function deleteUser(id) {
+  if (!confirm('Delete this user?')) return;
+  const r = await api('DELETE', '/users?id='+id);
+  if (r.ok) { toast('User deleted'); loadUsers(); }
+  else toast('Failed to delete user','err');
+}
+
+/* ─── TASK CRUD ─── */
+async function createTask() {
+  const title = v('ct-title'), description = v('ct-desc'), taskStatus = v('ct-status');
+  if (!title) { toast('Title is required','err'); return; }
+  const r = await api('POST', '/tasks', {title, description, taskStatus});
+  if (r.ok) { toast('Task created'); closeModal('task-create'); clearFields(['ct-title','ct-desc']); loadTasks(); }
+  else toast('Failed to create task','err');
+}
+
+function openEditTask(id) {
+  const t = tasks.find(x=>(x.id??x.taskId)===id);
+  if (!t) return;
+  document.getElementById('et-id').value = t.id;
+  document.getElementById('et-title').value = t.title || '';
+  document.getElementById('et-desc').value = t.description || '';
+  document.getElementById('et-status').value = t.taskStatus || 'TODO';
+  openModal('task-edit');
+}
+
+async function updateTask() {
+  const id = v('et-id'), title = v('et-title'), description = v('et-desc'), taskStatus = v('et-status');
+  const r = await api('PUT', '/tasks/'+id, {title, description, taskStatus});
+  if (r.ok) { toast('Task updated'); closeModal('task-edit'); loadTasks(); }
+  else toast('Failed to update task','err');
+}
+
+async function deleteTask(id) {
+  if (!confirm('Delete this task?')) return;
+  const r = await api('DELETE', '/tasks?id='+id);
+  if (r.ok) { toast('Task deleted'); loadTasks(); }
+  else toast('Failed to delete task','err');
+}
+
+async function changeStatus(id, status, sel) {
+  const wrap = sel.closest('.status-select-wrap');
+  wrap.className = 'status-select-wrap ' + status;
+  const r = await api('PUT', `/tasks/status/${id}?status=${status}`);
+  if (r.ok) { toast('Status updated'); loadTasks(); }
+  else toast('Failed to change status','err');
+}
+
+/* ─── ASSIGN ─── */
+function openAssign(taskId) {
+  const t = tasks.find(x=>x.id===taskId);
+  document.getElementById('assign-task-id').value = taskId;
+  document.getElementById('assign-subtitle').textContent = `Task: "${t?.title||taskId}"`;
+  assignSelectedUserId = t?.userId || null;
+
+  const list = document.getElementById('assign-user-list');
+  if (!users.length) { list.innerHTML = '<p style="color:var(--muted);font-size:14px">No users available.</p>'; }
+  else {
+    list.innerHTML = '';
+    users.forEach(u => {
+      const d = document.createElement('div');
+      d.className = 'user-option-item' + (u.id === assignSelectedUserId ? ' selected' : '');
+      d.dataset.uid = u.id;
+      d.onclick = () => {
+        document.querySelectorAll('.user-option-item').forEach(x=>x.classList.remove('selected'));
+        d.classList.add('selected');
+        assignSelectedUserId = u.id;
+      };
+      d.innerHTML = `
+        <div class="uoi-av">${initials(u.name)}</div>
+        <div class="uoi-info">
+          <div class="uoi-name">${esc(u.name)}</div>
+          <div class="uoi-email">${esc(u.email)}</div>
+        </div>`;
+      list.appendChild(d);
+    });
+  }
+
+  const unBtn = document.getElementById('unassign-btn');
+  unBtn.style.display = t?.userId ? '' : 'none';
+  openModal('assign');
+}
+
+async function assignTask() {
+  const taskId = v('assign-task-id');
+  if (!assignSelectedUserId) { toast('Select a user','err'); return; }
+  const r = await api('PUT', `/tasks/assign/${taskId}?userId=${assignSelectedUserId}`);
+  if (r.ok) { toast('Task assigned'); closeModal('assign'); loadTasks(); }
+  else toast('Failed to assign task','err');
+}
+
+async function unassignTask() {
+  const taskId = v('assign-task-id');
+  const r = await api('PUT', `/tasks/unassign?id=${taskId}`);
+  if (r.ok) { toast('Task unassigned'); closeModal('assign'); loadTasks(); }
+  else toast('Failed to unassign','err');
+}
+
+/* ─── MODAL HELPERS ─── */
+function openModal(id) { document.getElementById('modal-'+id).classList.add('open'); }
+function closeModal(id) { document.getElementById('modal-'+id).classList.remove('open'); }
+function overlayClick(e, id) { if (e.target === document.getElementById('modal-'+id)) closeModal(id); }
+
+/* ─── UTILS ─── */
+const v = id => (document.getElementById(id)?.value||'').trim();
+function clearFields(ids) { ids.forEach(id => { const el=document.getElementById(id); if(el) el.value=''; }); }
+function esc(s){ const d=document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+
+function toast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  clearTimeout(t._t);
+  t._t = setTimeout(()=>t.className='', 2800);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') document.querySelectorAll('.overlay.open').forEach(o=>o.classList.remove('open'));
+});
+
+/* ─── INIT ─── */
+loadAll();
+</script>
+</body>
+</html>
