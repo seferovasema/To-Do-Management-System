@@ -191,7 +191,7 @@ body{
   animation:fadeUp 0.3s ease both;
 }
 .task-card:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
-.task-card.TODO{border-left-color:var(--warning)}
+.task-card.TO_DO{border-left-color:var(--warning)}
 .task-card.IN_PROGRESS{border-left-color:var(--accent2)}
 .task-card.DONE{border-left-color:var(--accent3)}
 .task-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
@@ -202,7 +202,7 @@ body{
   font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;
   padding:3px 9px;border-radius:20px;
 }
-.status-badge.TODO{background:rgba(200,162,42,0.12);color:var(--warning);border:1px solid rgba(200,162,42,0.3)}
+.status-badge.TO_DO{background:rgba(200,162,42,0.12);color:var(--warning);border:1px solid rgba(200,162,42,0.3)}
 .status-badge.IN_PROGRESS{background:rgba(42,95,200,0.12);color:var(--accent2);border:1px solid rgba(42,95,200,0.3)}
 .status-badge.DONE{background:rgba(42,200,122,0.12);color:#1a9458;border:1px solid rgba(42,200,122,0.3)}
 .assigned-to{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px}
@@ -357,7 +357,7 @@ body{
   content:'▾';position:absolute;right:6px;top:50%;transform:translateY(-50%);
   font-size:9px;pointer-events:none;color:inherit;
 }
-.status-select-wrap.TODO select{background:rgba(200,162,42,0.12);color:var(--warning)}
+.status-select-wrap.TO_DO select{background:rgba(200,162,42,0.12);color:var(--warning)}
 .status-select-wrap.IN_PROGRESS select{background:rgba(42,95,200,0.12);color:var(--accent2)}
 .status-select-wrap.DONE select{background:rgba(42,200,122,0.12);color:#1a9458}
 
@@ -408,7 +408,7 @@ body{
     </div>
     <div class="filter-bar">
       <div class="filter-chip active" data-filter="ALL" onclick="setFilter(this)">All</div>
-      <div class="filter-chip" data-filter="TODO" onclick="setFilter(this)">To Do</div>
+      <div class="filter-chip" data-filter="TO_DO" onclick="setFilter(this)">To Do</div>
       <div class="filter-chip" data-filter="IN_PROGRESS" onclick="setFilter(this)">In Progress</div>
       <div class="filter-chip" data-filter="DONE" onclick="setFilter(this)">Done</div>
     </div>
@@ -493,7 +493,7 @@ body{
       <div class="field">
         <label>Status</label>
         <select id="ct-status">
-          <option value="TODO">TODO</option>
+          <option value="TO_DO">TO DO</option>
           <option value="IN_PROGRESS">IN_PROGRESS</option>
           <option value="DONE">DONE</option>
         </select>
@@ -523,7 +523,7 @@ body{
       <div class="field">
         <label>Status</label>
         <select id="et-status">
-          <option value="TODO">TODO</option>
+          <option value="TO_DO">TO DO</option>
           <option value="IN_PROGRESS">IN_PROGRESS</option>
           <option value="DONE">DONE</option>
         </select>
@@ -652,7 +652,7 @@ function renderTasks() {
   if (!filtered.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">✓</div><p>No tasks' + (taskFilter!=='ALL'?' with this status':' yet. Create one!') + '</p></div>'; return; }
   el.innerHTML = '';
   filtered.forEach((t, i) => {
-    const st = t.taskStatus || 'TODO';
+    const st = t.taskStatus || 'TO_DO';
     // id field adı backend-dən fərqli gələ bilər: id, taskId, və s.
     const tid = t.id ?? t.taskId ?? null;
     const assignedUser = t.userId ? users.find(u => (u.id ?? u.userId) === t.userId) : null;
@@ -673,7 +673,7 @@ function renderTasks() {
       <div class="task-bottom">
         <div class="status-select-wrap ${st}">
           <select data-action="status">
-            <option value="TODO" ${st==='TODO'?'selected':''}>TODO</option>
+            <option value="TO_DO" ${st==='TO_DO'?'selected':''}>TODO</option>
             <option value="IN_PROGRESS" ${st==='IN_PROGRESS'?'selected':''}>IN PROGRESS</option>
             <option value="DONE" ${st==='DONE'?'selected':''}>DONE</option>
           </select>
@@ -757,7 +757,7 @@ function openEditTask(id) {
   document.getElementById('et-id').value = t.id;
   document.getElementById('et-title').value = t.title || '';
   document.getElementById('et-desc').value = t.description || '';
-  document.getElementById('et-status').value = t.taskStatus || 'TODO';
+  document.getElementById('et-status').value = t.taskStatus || 'TO_DO';
   openModal('task-edit');
 }
 
